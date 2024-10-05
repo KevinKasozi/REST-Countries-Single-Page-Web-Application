@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend  # Adjust this to your backend directory
+    ports:
+      - "8080:8080"  # Map the container's port 8080 to the host's port 8080
+
+  frontend:
+    build:
+      context: ./frontend  # Adjust this to your frontend directory
+    ports:
+      - "3000:3000"  # Map the container's port 3000 to the host's port 3000
+    depends_on:
+      - backend  # Ensure the backend is started before the frontend

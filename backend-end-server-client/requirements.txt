@@ -14,6 +14,7 @@ Eel==0.14.0
 et-xmlfile==1.1.0
 filelock==3.13.1
 Flask==3.0.3
+Flask-Cors==5.0.0
 future==0.18.2
 gevent==21.12.0
 gevent-websocket==0.10.1
