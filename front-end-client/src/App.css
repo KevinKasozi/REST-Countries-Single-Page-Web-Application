@@ -1,42 +1,66 @@
-#root {
+/* App.css */
+
+.app-container {
+  /* You can add any general styles for the app container here */
+}
+
+header {
+  padding: 10px;
+  text-align: center; 
+}
+
+.content-wrapper { 
+  display: flex;           
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  margin: 20px auto; 
+}
+
+.left-content { 
+  flex: 2; /* Main content takes more space */
+  margin-right: 20px; 
+}
+
+.favorites-section { 
+  flex: 1; /* Favorites section takes less space */
+  border-left: 2px solid #ccc; 
+  padding-left: 10px; 
+  margin-left: 20px;
+}
+
+.favorites-sidebar ul {
+  list-style: none; 
+  padding: 0;
+}
+
+/* Modal Styles */
+.modal-backdrop { 
+  position: static; 
+  transform: none; 
+  background-color: white; 
+  padding: 20px;
+  border: 2px solid #000; 
+  width: 100%; 
   text-align: center;
+  margin-top: 20px; /* Add space between favorites list and modal */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.modal-content img {
+  width: 100px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.modal-content button {
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) { 
+  .content-wrapper {
+    flex-direction: column; 
   }
-  to {
-    transform: rotate(360deg);
+
+  .favorites-section {
+    border-left: none;   
+    width: 100%;         
+    margin-top: 20px;    
+    margin-left: 0; 
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }

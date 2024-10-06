@@ -2,32 +2,26 @@ import { useState, useEffect } from 'react';
 import axios from "axios";
 import './App.css';
 import SearchBar from './Search-bar';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import Modal from './Modal'; // Import the modal
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [countries, setCounties] = useState([]); // Store data fetched countries
+  const [countries, setCountries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // State to handle any errors 
-  const [searchQuery, setsearchQuery] = useState('');
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [selectedCountry, setSelectedCountry] = useState(null); // Selected country state
+  const [favorites, setFavorites] = useState([]); // State for favorite countries
 
   const fetchApi = async () => {
-    console.log('Fetching API...');
     try {
       const response = await axios.get("http://192.168.1.209:8080/api/countries");
-      console.log('API Response:', response);
-
-      // Check for nested objects
-      if (Array.isArray(response.data)) {
-        console.log('Country Data after processing: ', response.data);
-        setCounties(response.data);
-        setLoading(false);
-      } else {
-        console.log('No Country data found or unexpected response structure.');
-        setError('Unexpected response structure.');
-        setLoading(false);
-      }
+      setCountries(response.data);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching data:', error);
       setError('Error fetching data:');
       setLoading(false);
     }
@@ -37,71 +31,122 @@ function App() {
     fetchApi();
   }, []);
 
-  // Update searchQuery state when a user types an input into the search bar
-  const updateSearchQuery = (newQuery) => {
-    setsearchQuery(newQuery);
-    console.log('Current search query:', newQuery); // Debugging log
-  };
+  const updateSearchQuery = (newQuery) => setSearchQuery(newQuery);
 
-  // Filter countries based on partial match for name or languages
   const filteredCountries = countries.filter((country) => {
-    const countryNameMatch = country.name.toLowerCase().includes(searchQuery.toLowerCase()); // Partial match for country name
-    const languageMatch = country.languages.some((lang) => lang.toLowerCase().includes(searchQuery.toLowerCase())); // Partial match for languages
-
-    // Debugging log
-    console.log('Filtering countries:', {
-      country: country.name,
-      countryNameMatch,
-      languageMatch,
-      searchQuery
-    });
-
-    return countryNameMatch || languageMatch; // Include both conditions
+    const countryNameMatch = country.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const languageMatch = country.languages.some((lang) => lang.toLowerCase().includes(searchQuery.toLowerCase()));
+    return countryNameMatch || languageMatch;
   });
 
+  const handleRowClick = (event) => {
+    setSelectedCountry(event.data); 
+    setIsModalOpen(true);
+  };
+
+  const columnDefs = [
+    {
+      headerName: "Flag",
+      field: "flag",
+      cellRendererFramework: (params) => {
+        return (
+          <img
+            src={params.value}
+            alt={`${params.data.name} flag`}
+            style={{ width: '50px', height: 'auto' }}
+          />
+        );
+      },
+      width: 100,
+    },
+    { headerName: "Name", field: "name", sortable: true },
+    { headerName: "Capital", field: "capital", sortable: true },
+    {
+      headerName: "Currencies",
+      field: "currencies",
+      valueGetter: (params) => params.data.currencies.map((curr) => curr.name).join(', '),
+      sortable: true,
+    },
+    { headerName: "Population", field: "population", sortable: true },
+    {
+      headerName: "Languages",
+      field: "languages",
+      valueGetter: (params) => params.data.languages.join(', '),
+      sortable: true,
+    },
+    { headerName: "Region", field: "region", sortable: true },
+    { headerName: "Subregion", field: "subregion", sortable: true },
+    {
+      headerName: "Favorite",
+      cellRendererFramework: (params) => {
+        const isFavorite = favorites.some((fav) => fav.name === params.data.name);
+        return (
+          <button 
+            onClick={() => {
+              if (!isFavorite) {
+                setFavorites([...favorites, params.data]); // Add to favorites
+              }
+            }}
+          >
+            {isFavorite ? "Favorited" : "Add to Favorites"}
+          </button>
+        );
+      },
+      width: 150,
+    }
+  ];
+
   return (
-    <>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
-      <div>
-        <h1> Welcome To My Countries app</h1>
-        <div className="wrapper">
-          <h2> Search For a Country Here</h2>
-          {loading && <div>Please bear with us whilst the countries load ... </div>}
-          {error && <div>{`Sorry there was a problem fetching the countries - ${error}`}</div>}
-          <SearchBar searchQuery={searchQuery} onChange={updateSearchQuery} />
+    <div className="app-container"> 
+      <header> {/* Header as a navbar */}
+        <h1> Welcome To My Countries App</h1>
+      </header>
 
-          {/* Display filtered countries based on search */}
-          <h2>Filtered Results</h2>
-          <ul>
-            {searchQuery ? (
-              filteredCountries.length > 0 ? (
-                filteredCountries.map((country, index) => (
-                  <li key={index}>
-                    <img src={country.flag} alt={`${country.name} flag`} style={{ width: '50px' }} /> {/* Display the flag */}
-                    <h3>{country.name}</h3>
-                    <p>Population: {country.population}</p>
-                    <p>Languages: {country.languages.join(', ')}</p>
-                  </li>
-                ))
-              ) : (
-                <li>No countries found matching your search.</li>
-              )
-            ) : (
-              <li>Please enter a search query.</li>
-            )}
-          </ul>
+      <div className="content-wrapper"> {/* Wrapper for search, grid, and favorites */}
+        <div className="left-content"> {/* Search and grid */}
+          <div className="search-container">
+            <h2> Search For a Country Here</h2>
+            {loading && <div>Loading countries...</div>}
+            {error && <div>{`Error: ${error}`}</div>}
+            <SearchBar searchQuery={searchQuery} onChange={updateSearchQuery} />
+          </div>
+
+          <h2>Countries List</h2>
+          <div className="ag-theme-alpine" style={{ height: 600, width: '100%' }}> 
+            <AgGridReact
+              rowData={filteredCountries}
+              columnDefs={columnDefs}
+              pagination={true}
+              paginationPageSize={10}
+              domLayout='autoHeight'
+              onRowClicked={handleRowClick}
+            />
+          </div>
         </div>
+
+        <aside className="favorites-sidebar"> {/* Favorites sidebar */}
+          <h2>Your Favorite Countries</h2>
+          <ul>
+            {favorites.map((country) => (
+              <li key={country.name}>
+                {country.name} 
+                <button onClick={() => setFavorites(favorites.filter((fav) => fav.name !== country.name))}>
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        </aside>
       </div>
 
-      <div>
-        {error && <p>{error}</p>}
-      </div>
-    </>
+      {/* Modal */}
+      {isModalOpen && selectedCountry && (
+        <Modal 
+          country={selectedCountry} 
+          onClose={() => setIsModalOpen(false)} 
+        />
+      )}
+    </div>
   );
 };
-
 export default App;
