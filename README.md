@@ -22,6 +22,9 @@ Welcome to the **Countries API App**! This application displays a list of countr
 - **Data**: REST Countries API
 - **Styling**: CSS
 
+## Future Technologies to consier
+- **Styling**: Tailwind CSS
+
 ## Installation
 
 1. In the bash terminal run the following command to clone the repository:
