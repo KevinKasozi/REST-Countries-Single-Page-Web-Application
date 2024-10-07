@@ -17,7 +17,7 @@ Welcome to the **Countries API App**! This application displays a list of countr
 - Persist favorite countries in local storage.
 
 ## Technologies Used
-- **Frontend**: React, Ag-Grid
+- **Frontend**: React, Ag-Grid, Axios
 - **Backend**: Python (Flask)
 - **Data**: REST Countries API
 - **Styling**: CSS
@@ -39,6 +39,7 @@ Welcome to the **Countries API App**! This application displays a list of countr
     cd ../backend
 
 5.Create a virtual environment and activate it (optional but recommended):
+    
     python3 -m venv venv
 
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -81,5 +82,5 @@ To run both the backend and frontend in Docker containers:
     http://localhost:3000/REST-Countries-Single-Page-Web-Application/
 
     If you want to access the backend server api use this link :
-    
+
     http://localhost:8080/api/countries
