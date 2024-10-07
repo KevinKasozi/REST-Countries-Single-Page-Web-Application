@@ -1,66 +1,107 @@
-/* App.css */
-
-.app-container {
-  /* You can add any general styles for the app container here */
+body {
+  background-color: #f9f9f9; /* Light background for the entire page */
+  font-family: 'Arial', sans-serif; /* Font family for better readability */
+  color: #333; /* Default text color */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
 }
 
-header {
-  padding: 10px;
-  text-align: center; 
+#root {
+  max-width: 1200px; /* Limit max width for readability */
+  margin: 0 auto; /* Center the main container */
+  padding: 20px; /* Padding around the main container */
 }
 
-.content-wrapper { 
-  display: flex;           
-  max-width: 1280px;
-  margin: 20px auto; 
+.wrapper {
+  display: flex;
+  width: 100%;
+  gap: 20px; /* Space between grid and favorites */
 }
 
-.left-content { 
-  flex: 2; /* Main content takes more space */
-  margin-right: 20px; 
+.ag-theme-alpine {
+  flex: 1; /* Make the grid flexible */
+  height: 800px; /* Fixed height for the grid */
+  border-radius: 8px; /* Rounded corners for the grid */
+  overflow: hidden; /* Hide overflow for aesthetics */
 }
 
-.favorites-section { 
-  flex: 1; /* Favorites section takes less space */
-  border-left: 2px solid #ccc; 
-  padding-left: 10px; 
-  margin-left: 20px;
+.favorites-bar {
+  background-color: #fff; /* White background for favorites */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding inside the favorites bar */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  width: 300px; /* Fixed width for favorites bar */
+  height: 800px; /* Match height of grid */
+  overflow-y: auto; /* Allow scrolling if content exceeds */
 }
 
-.favorites-sidebar ul {
-  list-style: none; 
-  padding: 0;
+.favorites-bar h2 {
+  margin-top: 0;
+  color: #4A90E2; /* Color for section headings */
 }
 
-/* Modal Styles */
-.modal-backdrop { 
-  position: static; 
-  transform: none; 
-  background-color: white; 
+.favorites-bar ul {
+  list-style: none; /* Remove default list styling */
+  padding: 0; /* Remove padding */
+}
+
+.favorites-bar li {
+  display: flex; /* Flexbox for alignment */
+  justify-content: space-between; /* Space between country name and button */
+  padding: 10px; /* Padding around each item */
+  border-radius: 5px; /* Rounded corners for list items */
+  background-color: #f0f0f0; /* Light background for list items */
+  margin-bottom: 10px; /* Space between list items */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.favorites-bar li:hover {
+  background-color: #e0e0e0; /* Darken background on hover */
+}
+
+h1, h2 {
+  color: #4A90E2; /* Color for headings */
+  margin-bottom: 10px; /* Space below headings */
+}
+
+button {
+  background-color: #4A90E2; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* Remove default border */
+  border-radius: 5px; /* Rounded corners for buttons */
+  padding: 5px 10px; /* Padding inside buttons */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+button:hover {
+  background-color: #357ABD; /* Darken button on hover */
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
   padding: 20px;
-  border: 2px solid #000; 
-  width: 100%; 
-  text-align: center;
-  margin-top: 20px; /* Add space between favorites list and modal */
+  border-radius: 8px;
+  width: 300px; /* Fixed width for modal */
 }
 
-.modal-content img {
-  width: 100px;
+/* Add additional styles for the grid rows */
+.ag-theme-alpine .ag-row {
+  transition: background-color 0.3s; /* Smooth transition */
 }
 
-.modal-content button {
-  margin-top: 10px;
-}
-
-@media (max-width: 768px) { 
-  .content-wrapper {
-    flex-direction: column; 
-  }
-
-  .favorites-section {
-    border-left: none;   
-    width: 100%;         
-    margin-top: 20px;    
-    margin-left: 0; 
-  }
+.ag-theme-alpine .ag-row:hover {
+  background-color: #f1f1f1; /* Highlight row on hover */
 }

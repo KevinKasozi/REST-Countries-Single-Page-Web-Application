@@ -12,9 +12,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [selectedCountry, setSelectedCountry] = useState(null); // Selected country state
-  const [favorites, setFavorites] = useState([]); // State for favorite countries
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [favorites, setFavorites] = useState(() => {
+    const storedFavorites = localStorage.getItem('favorites');
+    return storedFavorites ? JSON.parse(storedFavorites) : [];
+  });
 
   const fetchApi = async () => {
     try {
@@ -22,7 +25,7 @@ function App() {
       setCountries(response.data);
       setLoading(false);
     } catch (error) {
-      setError('Error fetching data:');
+      setError('Error fetching data from API.');
       setLoading(false);
     }
   };
@@ -40,25 +43,20 @@ function App() {
   });
 
   const handleRowClick = (event) => {
-    setSelectedCountry(event.data); 
+    setSelectedCountry(event.data);
     setIsModalOpen(true);
   };
 
+  const FavoriteButton = (props) => {
+    const isFavorite = favorites.some((fav) => fav.name === props.data.name);
+    return (
+      <button onClick={() => toggleFavorite(props.data)}>
+        {isFavorite ? '★' : '☆'}
+      </button>
+    );
+  };
+
   const columnDefs = [
-    {
-      headerName: "Flag",
-      field: "flag",
-      cellRendererFramework: (params) => {
-        return (
-          <img
-            src={params.value}
-            alt={`${params.data.name} flag`}
-            style={{ width: '50px', height: 'auto' }}
-          />
-        );
-      },
-      width: 100,
-    },
     { headerName: "Name", field: "name", sortable: true },
     { headerName: "Capital", field: "capital", sortable: true },
     {
@@ -76,43 +74,49 @@ function App() {
     },
     { headerName: "Region", field: "region", sortable: true },
     { headerName: "Subregion", field: "subregion", sortable: true },
+
     {
       headerName: "Favorite",
-      cellRendererFramework: (params) => {
-        const isFavorite = favorites.some((fav) => fav.name === params.data.name);
-        return (
-          <button 
-            onClick={() => {
-              if (!isFavorite) {
-                setFavorites([...favorites, params.data]); // Add to favorites
-              }
-            }}
-          >
-            {isFavorite ? "Favorited" : "Add to Favorites"}
-          </button>
-        );
-      },
-      width: 150,
-    }
+      field: "favorite",
+      cellRenderer: (params) => <FavoriteButton data={params.data} />, // Use cellRenderer instead of cellRendererFramework
+      width: 120,
+    },
   ];
 
+  const toggleFavorite = (country) => {
+    const isFavorite = favorites.some((fav) => fav.name === country.name);
+    if (!isFavorite) {
+      const newFavorites = [...favorites, country];
+      setFavorites(newFavorites);
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));  // Save to local storage
+    } else {
+      const newFavorites = favorites.filter((fav) => fav.name !== country.name);
+      setFavorites(newFavorites);
+      localStorage.setItem('favorites', JSON.stringify(newFavorites));  // Save updated list
+    }
+  };
+
+  useEffect(() => {
+    const storedFavorites = JSON.parse(localStorage.getItem('favorites'));
+    if (storedFavorites) {
+      setFavorites(storedFavorites);
+    }
+  }, []);
+
   return (
-    <div className="app-container"> 
-      <header> {/* Header as a navbar */}
-        <h1> Welcome To My Countries App</h1>
-      </header>
+    <>
+      <div>
+        <h1>Welcome To My Countries App</h1>
 
-      <div className="content-wrapper"> {/* Wrapper for search, grid, and favorites */}
-        <div className="left-content"> {/* Search and grid */}
-          <div className="search-container">
-            <h2> Search For a Country Here</h2>
-            {loading && <div>Loading countries...</div>}
-            {error && <div>{`Error: ${error}`}</div>}
-            <SearchBar searchQuery={searchQuery} onChange={updateSearchQuery} />
-          </div>
+        <h2>Search For a Country Here</h2>
+        <SearchBar searchQuery={searchQuery} onChange={updateSearchQuery} />
 
-          <h2>Countries List</h2>
-          <div className="ag-theme-alpine" style={{ height: 600, width: '100%' }}> 
+        <div className="wrapper"> {/* Wrapper starts here */}
+          {loading && <div>Loading countries...</div>}
+          {error && <div>{`Error: ${error}`}</div>}
+
+          <div className="ag-theme-alpine">
+            <h2>Countries List</h2>
             <AgGridReact
               rowData={filteredCountries}
               columnDefs={columnDefs}
@@ -122,31 +126,29 @@ function App() {
               onRowClicked={handleRowClick}
             />
           </div>
-        </div>
 
-        <aside className="favorites-sidebar"> {/* Favorites sidebar */}
-          <h2>Your Favorite Countries</h2>
-          <ul>
-            {favorites.map((country) => (
-              <li key={country.name}>
-                {country.name} 
-                <button onClick={() => setFavorites(favorites.filter((fav) => fav.name !== country.name))}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
+          <div className="favorites-bar">
+            <h2>Your Favorite Countries</h2>
+            <ul>
+              {favorites.map((country) => (
+                <li key={country.name}>
+                  {country.name}
+                  <button onClick={() => toggleFavorite(country)}>Remove</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div> {/* Wrapper ends here */}
       </div>
 
-      {/* Modal */}
       {isModalOpen && selectedCountry && (
-        <Modal 
-          country={selectedCountry} 
-          onClose={() => setIsModalOpen(false)} 
+        <Modal
+          country={selectedCountry}
+          onClose={() => setIsModalOpen(false)}
         />
       )}
-    </div>
+    </>
   );
-};
+}
+
 export default App;
